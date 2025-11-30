@@ -143,7 +143,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+nlpenv/
+data/
+output/
 # Spyder project settings
 .spyderproject
 .spyproject
