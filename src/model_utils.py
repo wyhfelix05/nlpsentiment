@@ -1,20 +1,6 @@
 import torch
 import os
-
-# -------------------------
-# 模型构建与初始化
-# -------------------------
-def build_model(model_class, **kwargs):
-    """
-    创建模型实例
-    Args:
-        model_class: 模型类
-        kwargs: 初始化参数
-    Returns:
-        model 实例
-    """
-    model = model_class(**kwargs)
-    return model
+from datasets import load_from_disk
 
 # -------------------------
 # 模型保存
@@ -46,6 +32,25 @@ def save_pretrained_model(model, tokenizer, path):
 # -------------------------
 # 模型加载
 # -------------------------
+def load_processed_dataset(path="data/processed", debug=False, debug_size=5000):
+    """
+    从磁盘加载已经处理好的数据集，并可选择调试模式下使用小数据。
+    
+    Args:
+        path (str): 数据集存放路径
+        debug (bool): 是否使用小数据
+        debug_size (int): 小数据样本数
+    Returns:
+        datasets.DatasetDict
+    """
+    datasets = load_from_disk(path)
+    
+    if debug:
+        datasets["train"] = datasets["train"][:debug_size]
+        datasets["validation"] = datasets["validation"][:debug_size]
+    
+    return datasets
+
 def load_model(model_class, path, device, **kwargs):
     """
     加载模型权重

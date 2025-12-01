@@ -5,6 +5,8 @@ from datasets import load_dataset, DatasetDict
 from transformers import BertTokenizer
 from typing import Optional, Tuple
 
+from utils.logger import logger
+
 # =========================================================
 # 阶段 1：下载与基本检查
 # =========================================================
@@ -12,8 +14,10 @@ from typing import Optional, Tuple
 def load_raw_dataset(dataset_name: str = "stanfordnlp/sst2") -> DatasetDict:
     """Download a dataset from Hugging Face hub."""
     print(f"[INFO] Loading dataset: {dataset_name}")
+    logger.info(f"Loading dataset: {dataset_name}")
     dataset = load_dataset(dataset_name)
     print(dataset)
+    logger.info(f"Dataset loaded: {dataset}")
     return dataset
 
 
@@ -32,6 +36,7 @@ def clean_dataset(dataset: DatasetDict) -> DatasetDict:
         dataset[split] = dataset[split].filter(lambda x: len(x["text"]) > 0)
 
     print("[INFO] Dataset cleaned.")
+    logger.info("Dataset cleaned.")
     return dataset
 
 
@@ -41,6 +46,7 @@ def clean_dataset(dataset: DatasetDict) -> DatasetDict:
 
 def load_tokenizer(tokenizer_name: str = "bert-base-uncased") -> BertTokenizer:
     print(f"[INFO] Loading tokenizer: {tokenizer_name}")
+    logger.info(f"Loading tokenizer: {tokenizer_name}")
     return BertTokenizer.from_pretrained(tokenizer_name)
 
 
@@ -59,8 +65,10 @@ def tokenize_dataset(
         )
 
     print("[INFO] Tokenizing dataset...")
+    logger.info("Tokenizing dataset...")
     tokenized = dataset.map(tokenize_fn, batched=True)
     print("[INFO] Tokenization done.")
+    logger.info("Tokenization done.")
 
     return tokenized
 
@@ -72,8 +80,10 @@ def tokenize_dataset(
 def save_dataset(dataset: DatasetDict, save_dir: str = "data/processed"):
     os.makedirs(save_dir, exist_ok=True)
     print(f"[INFO] Saving tokenized dataset to: {save_dir}")
+    logger.info(f"Saving tokenized dataset to: {save_dir}")
     dataset.save_to_disk(save_dir)
     print("[INFO] Dataset saved.")
+    logger.info("Dataset saved.")
 
 
 # =========================================================
@@ -95,6 +105,7 @@ def prepare_dataset(
     返回可直接用于训练的 HF DatasetDict
     """
     print("========== DATASET PREPARATION START ==========")
+    logger.info("========== DATASET PREPARATION START ==========")
 
     # ---- 调用前面每个阶段 ----
     raw_dataset = load_raw_dataset(dataset_name)
@@ -104,6 +115,7 @@ def prepare_dataset(
     save_dataset(tokenized_dataset, save_dir)
 
     print("========== DATASET PREPARATION DONE ==========")
+    logger.info("========== DATASET PREPARATION DONE ==========")
     return tokenized_dataset
 
 
