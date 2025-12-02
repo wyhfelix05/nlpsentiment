@@ -1,0 +1,54 @@
+project:
+  name: nlp-sentiment-analysis
+  author: yihan
+  version: 1.0
+
+paths:
+  root_dir: .
+  data_raw: data/raw
+  data_processed: data/processed
+  model_output: output/model
+  logs: output/logs
+  s3_bucket: nlp-project-1201
+  s3_train_input: s3://nlp-project-1201/nlp-sentiment/data/processed/
+
+dataset:
+  name: stanfordnlp/sst2
+  max_length: 128
+  tokenizer_name: bert-base-uncased
+
+training:
+  use_sagemaker: true
+  entry_point: train.py
+  source_dir: src
+  instance_type: ml.g4dn.xlarge
+  instance_count: 1
+  role: arn:aws:iam::608841106628:role/nlp-sst2-sagemaker-role
+  transformers_version: 4.28.1
+  pytorch_version: 2.0.0
+  python_version: py310
+  batch_size: 16
+  epochs: 3
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  save_strategy: no
+
+inference:
+  endpoint_name: nlp-sentiment-endpoint
+  region: ca-central-1
+  instance_type: ml.m5.large
+  initial_instance_count: 1
+  hf_task: text-classification
+
+local_inference:
+  device: auto
+  max_length: 128
+  num_labels: 2
+  model_dir: output/model
+
+deployment:
+  model_s3_path: s3://sagemaker-ca-central-1-608841106628/huggingface-pytorch-training-2025-12-02-07-33-08-371/output/model.tar.gz
+
+logging:
+  level: INFO
+  log_dir: output/logs
