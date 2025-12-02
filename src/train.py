@@ -3,8 +3,6 @@ from transformers import BertForSequenceClassification, Trainer, TrainingArgumen
 from transformers import BertTokenizerFast
 from datasets import load_from_disk
 from utils.metrics import compute_classification_metrics
-
-# 假设你的 logger 已经在 logger.py 或 train.py 顶部定义
 from utils.logger import logger
 
 
@@ -27,7 +25,7 @@ def main(debug=False, debug_size=5000):
     # -----------------------------
     # 加载数据
     # -----------------------------
-    dataset_dir = "data/processed"
+    dataset_dir = "/opt/ml/input/data/train"
     datasets = load_from_disk(dataset_dir)
 
     if debug:
@@ -47,9 +45,9 @@ def main(debug=False, debug_size=5000):
     # 定义训练参数
     # -----------------------------
     training_args = TrainingArguments(
-        output_dir=output_dir,
-        eval_strategy="epoch",
-        save_strategy="epoch",
+        output_dir="/opt/ml/model",
+        evaluation_strategy="epoch",
+        save_strategy="no",
         learning_rate=2e-5,
         per_device_train_batch_size=batch_size,
         per_device_eval_batch_size=batch_size,
@@ -57,8 +55,8 @@ def main(debug=False, debug_size=5000):
         weight_decay=0.01,
         logging_dir=os.path.join(output_dir, "logs"),
         logging_steps=50,
-        save_total_limit=2,
-        load_best_model_at_end=True,
+        #save_total_limit=2,
+        load_best_model_at_end=False,
         metric_for_best_model="accuracy",
     )
 
@@ -94,7 +92,7 @@ def main(debug=False, debug_size=5000):
     # -----------------------------
     # 保存模型
     # -----------------------------
-    trainer.save_model(output_dir)
+    trainer.save_model("/opt/ml/model")
     logger.info(f"Model saved to {output_dir}")
     print(f"Model saved to {output_dir}")
 
